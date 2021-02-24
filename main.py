@@ -59,7 +59,7 @@ Final_mean_Team2MIN = mean_Team2MIN.values.tolist()
 team1_Score = (team1_w_pct_final[0]*100)
 team2_Score = (team2_w_pct_final[0]*100)
 print(team1_Score)
-print(team2_Score)
+print(team2_Score) ho;suhifawhfe;hfdsiluhfdvs;kojdfsLIUGAFSD
 
 
 team1_Score = team1_Score + (Final_mean_Team1PTS[0]/Final_mean_Team1MIN[0])*100
