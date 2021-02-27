@@ -7,6 +7,8 @@ import pandas as pd
 from nba_api.stats.endpoints import leaguegamefinder
 from nba_api.stats.endpoints import teamyearbyyearstats
 from nba_api.stats.static import teams
+from nba_api.stats.endpoints import commonteamroster
+from nba_api.stats.endpoints import commonplayerinfo
 #consistant variables
 player_dict = players.get_players()
 teams = teams.get_teams()
@@ -14,8 +16,8 @@ teams = teams.get_teams()
 
 
 #determin 2 teams compared
-a = "Brooklyn Nets"
-b = "Utah Jazz"
+a = "Philadelphia 76ers"
+b = "San Antonio Spurs"
 #getting team IDs
 Team1 = [x for x in teams if x['full_name'] == a][0]
 Team1_id = Team1['id']
@@ -25,6 +27,26 @@ Team2_id = Team2['id']
 #find games played by a team or player
 Team1_Current = teamgamelog.TeamGameLog(Team1_id).get_data_frames()[0]
 Team2_Current = teamgamelog.TeamGameLog(Team2_id).get_data_frames()[0]
+
+#find current roster for each team
+Team1_Roster = commonteamroster.CommonTeamRoster(Team1_id).get_data_frames()[0]
+Team2_Roster = commonteamroster.CommonTeamRoster(Team2_id).get_data_frames()[0]
+
+
+#find player ids for everyone on both teams
+Team1_PlayerIds = Team1_Roster[['PLAYER_ID']]
+Team1_PlayerIds_list = pd.DataFrame(Team1_Roster,columns=['PLAYER_ID'])
+Team1_PlayerIds = Team1_PlayerIds_list.values.tolist()
+Team2_PlayerIds = Team2_Roster[['PLAYER_ID']]
+Team2_PlayerIds_list = pd.DataFrame(Team2_Roster,columns=['PLAYER_ID'])
+Team2_PlayerIds = Team2_PlayerIds_list.values.tolist()
+
+#for i in range(len(Team1_PlayerIds)):
+Team1_PlayerInfo = commonplayerinfo.CommonPlayerInfo(Team1_PlayerI[0]).get_data_frames()[1]
+print(Team1_PlayerInfo[i])
+#for i in range(len(Team2_PlayerIds)):
+Team2_PlayerInfo = commonplayerinfo.CommonPlayerInfo(Team2_PlayerIds[0]).get_data_frames()[1]
+print(Team2_PlayerInfo[i])
 
 #finding win precent and converting from dataframe to list to int
 team1_w_pct = Team1_Current[["W_PCT"]]
@@ -55,35 +77,25 @@ Team2MIN = Team2_Current[["MIN"]]
 mean_Team2MIN = Team2MIN.mean()
 Final_mean_Team2MIN = mean_Team2MIN.values.tolist()
 
-#adding win percent to each team chances
+#adding win percent to each team's chances
 team1_Score = (team1_w_pct_final[0]*100)
 team2_Score = (team2_w_pct_final[0]*100)
-print(team1_Score)
-print(team2_Score) ho;suhifawhfe;hfdsiluhfdvs;kojdfsLIUGAFSD
+#print(team1_Score)
+#print(team2_Score)
 
-
+#adding team score per min to each team's chances
 team1_Score = team1_Score + (Final_mean_Team1PTS[0]/Final_mean_Team1MIN[0])*100
 team2_Score = team2_Score + (Final_mean_Team2PTS[0]/Final_mean_Team2MIN[0])*100
 
 
-print(team1_Score)
-print(team2_Score)
+#print(team1_Score)
+#print(team2_Score)
 
 
-
+#displaying prediction
 if team1_Score > team2_Score :
     print(a,"will win")
 else:
     print(b,"will win")
 
-##if mean_x > mean_y:
-##    print("team1 will win")
-##else:
-##    print("team 2 will win")
-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
 
