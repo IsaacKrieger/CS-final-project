@@ -4,27 +4,49 @@ from nba_api.stats.library.parameters import SeasonAll
 from nba_api.stats.endpoints import playergamelog, teamgamelog, teamyearbyyearstats, leaguegamefinder, commonteamroster, commonplayerinfo, playercareerstats
 import pandas as pd
 import time
+#global variables needed
+global team1_Score, team2_Score
 #consistant variables
 player_dict = players.get_players()
 teams = teams.get_teams()
-
+#determin 2 teams compared
+a = "Minnesota Timberwolves"
+b = "Brooklyn Nets"
+#determining whitch team is home
+Home = a
+#seeting the quality of team score to zero
+team1_Score = 0
+team2_Score = 0
+#function to convert dataframes to lists
 def convert(dataframe, data):
   lists = pd.DataFrame(dataframe, columns= [data])
   dataframe = lists.values.tolist()
   return(dataframe)
-#determin 2 teams compared
-a = "Minnesota Timberwolves"
-b = "Brooklyn Nets"
-team1_Score = 0
-team2_Score = 0
-Home = a
-#getting team IDs
+#function to compare stats of players on each team to see which team has the better players
+def playerdata(team_1_players, team_2_players, players_num, max_points, points_change):
+    global team1_Score, team2_Score
+    o = 0
+    p = 0
+    for i in range (players_num):
+        if (team_1_players[o] > team_2_players[p]):
+            team1_Score += (max_points - (i*points_change))
+            o += 1
+        elif(team_1_players[o] < team_2_players[p]):
+            team2_Score += (max_points - (i*points_change))
+            p+= 1
+        else:
+            team1_Score += (max_points - (i*points_change))
+            team2_Score += (max_points - (i*points_change))
+            o+= 1
+            p+= 1
+
+#getting team IDs given the names seen above
 Team1 = [x for x in teams if x['full_name'] == a][0]
 Team1_id = Team1['id']
 Team2 = [x for x in teams if x['full_name'] == b][0]
 Team2_id = Team2['id']
 
-#find games played by a team or player
+#find games played by a team, to see stats for the team for a given season
 Team1_Current = teamgamelog.TeamGameLog(Team1_id).get_data_frames()[0]
 Team2_Current = teamgamelog.TeamGameLog(Team2_id).get_data_frames()[0]
 
@@ -40,10 +62,11 @@ Team1_PlayerIds = convert(Team1_PlayerIds, 'PLAYER_ID')
 Team2_PlayerIds = Team2_Roster[['PLAYER_ID']]
 Team2_PlayerIds = convert(Team2_PlayerIds, 'PLAYER_ID')
 
+#determining the lenght of each team
 Team1_length = len(Team1_PlayerIds)
 Team2_length = len(Team2_PlayerIds)
 
-
+#getting info on all the players on each team for how succesfull each player is
 Team1_PlayerInfo = []
 Team2_PlayerInfo = []
 Team1_PlayerCumeInfo = []
@@ -57,6 +80,7 @@ for i in range(Team1_length):
     time.sleep(.8)
     Team1_PlayerPIE_List = Team1_PlayerPIE.values.tolist()
     Team1_PlayerInfo.append(Team1_PlayerPIE_List)
+ #sorts the data from best to worst player
 Team1_PlayerPIE_Sorted = sorted(Team1_PlayerInfo, reverse = True)
 print(Team1_PlayerPIE_Sorted)
 
@@ -69,33 +93,22 @@ for k in range(Team2_length):
     Team2_PlayerInfo.append(Team2_PlayerPIE_List)
 Team2_PlayerPIE_Sorted = sorted(Team2_PlayerInfo, reverse = True)
 print(Team2_PlayerPIE_Sorted)
-o = 0
-p = 0
-for i in range (15):
-  if (Team1_PlayerPIE_Sorted[o] > Team2_PlayerPIE_Sorted[p]):
-    team1_Score += (15 - i)
-    o += 1
-  elif(Team1_PlayerPIE_Sorted[o] < Team2_PlayerPIE_Sorted[p]):
-    team2_Score += (15 - i)
-    p+= 1
-  else:
-    team1_Score += (15 - i)
-    team2_Score += (15 - i)
-    o+= 1
-    p+= 1
-    
+playerdata(Team1_PlayerPIE_Sorted, Team2_PlayerPIE_Sorted, 15, 15, 1)
+
 #finding points per min of players
+Team1_PlayerMinComp = []
 for k in range(Team1_length):
     Team1_CumePlayerMin = Team1_PlayerCumeInfo[k]
     Team1_PlayerMin = Team1_CumePlayerMin[['MIN']]
-    Team1_PlayerMinComp = Team1_PlayerMin.values.tolist()
-    print(Team1_PlayerMinComp)
-    
+    Team1_PlayerMinComp.append(Team1_PlayerMin.values.tolist())
+print(Team1_PlayerMinComp)
+
+Team2_PlayerMinComp = []     
 for q in range(Team2_length):
     Team2_CumePlayerMin = Team2_PlayerCumeInfo[q]
     Team2_PlayerMin = Team2_CumePlayerMin[['MIN']]
-    Team2_PlayerMinComp = Team2_PlayerMin.values.tolist()
-    print(Team2_PlayerMinComp)
+    Team2_PlayerMinComp.append(Team2_PlayerMin.values.tolist())
+print(Team2_PlayerMinComp)
 
 
 #finding win precent and converting from dataframe to list to int
